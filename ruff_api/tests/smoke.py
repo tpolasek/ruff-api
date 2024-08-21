@@ -4,7 +4,7 @@
 from unittest import TestCase
 
 import ruff_api
-
+import os
 
 CODE_UNFORMATTED = """
 import sys
@@ -71,6 +71,16 @@ from firstparty import a, b, c
 def main(): pass
 """
 
+
+CODE_UNSORTED_IMPORTS_2 = """from bloks import b
+from privacy import a
+"""
+
+CODE_SORTED_IMPORTS_2 = """from privacy import a
+
+from bloks import b
+"""
+
 class SmokeTest(TestCase):
     def test_basic(self) -> None:
         self.assertEqual(
@@ -103,4 +113,11 @@ class SmokeTest(TestCase):
         self.assertEqual(
             CODE_SORTED_IMPORTS,
             ruff_api.import_sort_string("hello.py", CODE_UNSORTED_IMPORTS, options),
+        )
+
+        options = ruff_api.ImportSortOptions(["bloks"], [])
+        self.assertEqual(
+            CODE_SORTED_IMPORTS_2,
+            ruff_api.import_sort_string("/home/thomas/code/ruff-api/ruff_api/tests/smoke.py", 
+            CODE_UNSORTED_IMPORTS_2, options),
         )

@@ -17,6 +17,8 @@ use rustc_hash::FxHashMap;
 
 use glob::Pattern;
 use std::path::Path;
+use std::env;
+use std::path::PathBuf;
 
 create_exception!(ruff_api, FormatModuleError, exceptions::PyException);
 create_exception!(ruff_api, FormatError, FormatModuleError);
@@ -110,6 +112,8 @@ fn import_sort_string(
 ) -> PyResult<String> {
     let ipath: &Path = Path::new(&path);
 
+    let parent_path: &Path = Path::new(&path).parent().unwrap();
+
     let first_party_modules_pattern = options
         .unwrap()
         .first_party_modules
@@ -123,11 +127,14 @@ fn import_sort_string(
         .map(|s| Pattern::new(s).expect("Invalid pattern"))
         .collect();
 
+
     let linter_settings: LinterSettings = LinterSettings {
+        src: vec![PathBuf::from(&parent_path)],
         isort: isort::settings::Settings {
             case_sensitive: false,
             order_by_type: false,
             combine_as_imports: true,
+
             known_modules: KnownModules::new(
                 first_party_modules_pattern,  // first-party
                 vec![],                       // third-party
